@@ -178,7 +178,7 @@ Resources:
       DocumentType: Command
       Name: !Sub '${ExportPrefix}RunAutomationPlaybook'
       Content:
-        schemaVersion: 2.2
+        schemaVersion: "2.2"
         description: Use this document to run Ansible Playbooks from the atlassian deployment automation repo
         parameters:
           Playbook:
