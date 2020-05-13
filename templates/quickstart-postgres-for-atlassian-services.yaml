@@ -262,6 +262,9 @@ Outputs:
     Description: The port the DB endpoint listens on
     Value: !GetAtt DB.Endpoint.Port
   RDSEncryptionKey:
-    Condition: GenerateEncryptionKey
+    Condition: UseDatabaseEncryption
     Description: The alias of the encryption key created for RDS
-    Value: !Ref EncryptionKeyAlias
+    Value: !If
+      - GenerateEncryptionKey
+      - !Ref EncryptionKey
+      - !Ref DBStorageEncryptionKey 
