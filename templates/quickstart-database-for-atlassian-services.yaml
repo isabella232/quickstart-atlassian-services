@@ -124,15 +124,6 @@ Parameters:
       can include numbers, lowercase letters, uppercase letters, and hyphens (-).
       It cannot start or end with a hyphen (-).
     Type: String
-  QSS3BucketRegion:
-    Default: 'us-east-1'
-    AllowedPattern: ^[0-9a-z]+([0-9a-z-]*[0-9a-z])*$
-    ConstraintDescription: Quick Start bucket region can include numbers, lowercase
-      letters, and hyphens (-). It cannot start or end with a hyphen
-      (-).
-    Description: The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is
-      hosted. When using your own bucket, you must specify this value.
-    Type: String
   QSS3KeyPrefix:
     Default: 'quickstart-atlassian-services/'
     AllowedPattern: ^[0-9a-zA-Z-/]*$
@@ -153,8 +144,8 @@ Conditions:
     !Equals [!Ref DatabaseImplementation, 'Amazon Aurora PostgreSQL']
   UsePostgres:
     !Equals [!Ref DatabaseImplementation, 'PostgreSQL']
-  UsingDefaultBucket:
-    !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  GovCloudCondition:
+    !Equals [!Ref 'AWS::Region', 'us-gov-west-1']
   UseDatabaseEncryption:
     !Equals [!Ref DBStorageEncrypted, true]
   DatabaseEncryptionKeyProvided:
@@ -168,9 +159,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-atlassian-services/submodules/quickstart-amazon-aurora/templates/aurora_postgres.template.yaml
-        - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-          S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-atlassian-services/submodules/quickstart-amazon-aurora/templates/aurora_postgres.template.yaml
+        - QSS3Region: !If ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
       Parameters:
         CustomDBSecurityGroup: !Ref DBSecurityGroup
         DBAllocatedStorageEncrypted: !Ref DBStorageEncrypted
@@ -208,9 +198,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-        - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-atlassian-services/templates/quickstart-postgres-for-atlassian-services.yaml
-        - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-          S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-atlassian-services/templates/quickstart-postgres-for-atlassian-services.yaml
+        - QSS3Region: !If ["GovCloudCondition", "s3-us-gov-west-1", "s3"]
       Parameters:
         CustomDBSecurityGroup: !Ref DBSecurityGroup
         DBAllocatedStorage: !Ref DBAllocatedStorage
